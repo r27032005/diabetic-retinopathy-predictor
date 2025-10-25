@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results - DR Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .prediction {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .confidence {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+
+        .image-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .uploaded-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .probabilities {
+            margin-top: 30px;
+        }
+
+        .probabilities h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .prob-item {
+            margin-bottom: 15px;
+        }
+
+        .prob-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .prob-bar-container {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .prob-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .recommendation {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .recommendation h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .recommendation p {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Analysis Results</h1>
+
+        <div class="result-card">
+            <div class="prediction">{{ prediction }}</div>
+            <div class="confidence">Confidence: {{ "%.2f"|format(confidence * 100) }}%</div>
+        </div>
+
+        <div class="image-container">
+            <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image" class="uploaded-image">
+        </div>
+
+        <div class="probabilities">
+            <h3>📊 Detailed Analysis</h3>
+            {% for class_name, probability in all_predictions.items() %}
+            <div class="prob-item">
+                <div class="prob-label">
+                    <span>{{ class_name }}</span>
+                    <span>{{ "%.2f"|format(probability * 100) }}%</span>
+                </div>
+                <div class="prob-bar-container">
+                    <div class="prob-bar" style="width: {{ probability * 100 }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="recommendation">
+            <h3>💡 Recommendation</h3>
+            <p>
+                {% if prediction == "No DR" %}
+                No signs of diabetic retinopathy detected. Continue regular eye examinations and maintain good blood sugar control.
+                {% elif prediction == "Mild" %}
+                Mild diabetic retinopathy detected. Consult with your ophthalmologist for monitoring and management strategies.
+                {% elif prediction == "Moderate" %}
+                Moderate diabetic retinopathy detected. Medical attention recommended. Follow up with your healthcare provider.
+                {% elif prediction == "Severe" %}
+                Severe diabetic retinopathy detected. Immediate consultation with an ophthalmologist is strongly recommended.
+                {% else %}
+                Proliferative diabetic retinopathy detected. This is an advanced stage requiring urgent medical attention. Please consult an ophthalmologist immediately.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="buttons">
+            <a href="/" class="btn btn-primary" style="text-decoration: none; text-align: center;">
+                Analyze Another Image
+            </a>
+            <button onclick="window.print()" class="btn btn-secondary">
+                Print Results
+            </button>
+        </div>
+    </div>
+</body>
+</html>
